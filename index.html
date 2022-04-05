@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>RING CUSTOMIZER 4.00</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="gui.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1e1e1e;
+            margin: 0;
+            overflow: hidden;
+
+        }
+    </style>
+
+</head>
+<body>
+
+<script src="src/frontEnd/dat.gui.min.js"></script>
+
+<script src="src/three.min.js"></script>
+<script src="src/jquery-1.12.2.min.js"></script>
+<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+<script src="src/OBJLoader.js"></script>
+
+<script src="src/oldSrc/OBJExporter.js"></script>
+<script src="src/OBJ_Data.js"></script>
+
+<script src="src/matrixAlgebra.js"></script>
+<script src="src/require.js"></script>
+<script src="src/frontEnd/OrbitControls.js"></script>
+<script src="src/visualizer.js"></script>
+
+<script src="app.js"></script>
+
+<div id="my-gui-container" style="position: absolute; z-index: 100"></div>
+
+<div id="gui-container">
+<!--    <img src="black_mign_logo.png" alt="Major Logo" style="width:80%; height:80%; margin:10%; object-fit:contain">-->
+    <div id="my-gui"></div>
+</div>
+
+</body>
+</html>

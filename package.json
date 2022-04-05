@@ -1,0 +1,24 @@
+{
+  "name": "ring_customizer",
+  "version": "1.00.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pwildfe1/Ring-Customizer.git"
+  },
+  "author": "Studio Control Phase",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pwildfe1/Ring-Customizer.git"
+  },
+  "homepage": "http://peterwildfeuerdesign.com",
+  "dependencies": {
+    "express": "^4.16.3",
+    "morgan": "^1.9.1",
+    "three": "^0.139.2"
+  }
+}
