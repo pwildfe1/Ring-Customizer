@@ -8,7 +8,7 @@ let app = function(){
 
     let loader = new THREE.OBJLoader()
 
-    view.master_IP = "http://localhost:80"
+    view.master_IP = "https://fireflower-api-test-y2hc3ntgeq-uk.a.run.app"
 
     loader.load("ring_300x100.obj",function(object){
 
