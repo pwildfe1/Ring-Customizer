@@ -4,6 +4,7 @@ let CymaticRing = function(parent, frequency, threshold){
     view.app = parent
     view.frequency = frequency
     view.threshold = threshold
+    view.created = false
 
     console.log(view.app.mesh)
 
@@ -16,9 +17,15 @@ CymaticRing.prototype.createUI = function(){
     let view = this
 
     view.UI = view.app.UI.addFolder("Cymatic Ring")
-    view.UI.add(view, "frequency", 0, .3)
-    view.UI.add(view, "threshold", 30, 180)
-    view.UI.add(view, "update")
+    view.UI.add(view, "frequency", 0, .3).onFinishChange(function(){
+        if (view.created === true) view.update()
+    })
+    view.UI.add(view, "threshold", 30, 180).onFinishChange(function(){
+        if (view.created === true) view.update()
+    })
+    // view.UI.add(view, "update")
+
+    view.created = true
 
 }
 

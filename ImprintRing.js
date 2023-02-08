@@ -1,9 +1,9 @@
-let ImprintRing = function(parent, frequency, threshold){
+let ImprintRing = function(parent, amplitude, frequency){
 
     let view = this
     view.app = parent
+    view.amplitude = amplitude
     view.frequency = frequency
-    view.threshold = threshold
 
     console.log("IMPRINT STARTED")
 
@@ -18,9 +18,9 @@ ImprintRing.prototype.createUI = function(){
     console.log("IMPRINT CREATED!!!")
 
     view.UI = view.app.UI.addFolder("Imprint Ring")
-    view.UI.add(view, "frequency", 0, .3)
-    view.UI.add(view, "threshold", 30, 180)
-    view.UI.add(view, "update")
+    view.UI.add(view, "amplitude", 0, 1).onFinishChange(function(){ view.update() })
+    view.UI.add(view, "frequency", 1, 6).onFinishChange(function(){ view.update() })
+    view.UI.add(view, "retrieve_log")
 
 }
 
@@ -29,9 +29,11 @@ ImprintRing.prototype.update = function (){
     let view = this
 
     let parameters = {
-        "frequency": view.frequency,
-        "threshold": view.threshold
+        "amplitude": view.amplitude,
+        "frequency": view.frequency
     }
+
+    console.log(parameters)
 
     $.ajax({
         type: 'POST',
@@ -59,6 +61,8 @@ ImprintRing.prototype.update = function (){
             view.app.mesh = new THREE.Mesh(geometry, material)
             view.app.visualizer.scene.add(view.app.mesh)
 
+            view.app.add_ping()
+
         },
         error: (err)=>{
             console.warn(err)
@@ -83,4 +87,10 @@ ImprintRing.prototype.update = function (){
     //     console.log(error)
     // })
 
+}
+
+
+ImprintRing.prototype.retrieve_log = function(){
+    let view = this
+    view.app.query_ping()
 }
