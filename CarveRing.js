@@ -1,46 +1,37 @@
-let ImprintRing = function(parent, amplitude, frequency){
+let CarveRing = function(parent, spread = 1, frequency = 3){
 
     let view = this
     view.app = parent
-    view.amplitude = amplitude
+    view.spread = spread
     view.frequency = frequency
-    view.centered = true
-    view.orientation = "center"
-    view.spacing = 1
-
-    console.log("IMPRINT STARTED")
+    view.spacing = 2
 
     view.createUI()
 
 }
 
-ImprintRing.prototype.createUI = function(){
+CarveRing.prototype.createUI = function(){
 
     let view = this
 
-    console.log("IMPRINT CREATED!!!")
+    console.log("CARVE CREATED!!!")
 
-    view.UI = view.app.UI.addFolder("Imprint Ring")
-    view.UI.add(view, "amplitude", 0, 1).onFinishChange(function(){ view.update() })
+    view.UI = view.app.UI.addFolder("Carve Ring")
+    view.UI.add(view, "spread", 0, 1).step(.1).onFinishChange(function(){ view.update() })
     view.UI.add(view, "frequency", 1, 6).step(1).onFinishChange(function(){ view.update() })
-    view.UI.add(view, "spacing", 1, 4).onFinishChange(function (){ view.update() })
-    view.UI.add(view, "centered").onFinishChange(function (){ view.update() })
+    view.UI.add(view, "spacing", 2, 3).onFinishChange(function (){ view.update() })
     view.UI.add(view, "retrieve_log")
 
 }
 
-ImprintRing.prototype.update = function (){
+CarveRing.prototype.update = function (){
 
     let view = this
 
-    view.orientation = "bottom"
-    if (view.centered === true) view.orientation = "center"
-
     let parameters = {
-        "amplitude": view.amplitude,
+        "threshold": view.spread,
         "frequency": view.frequency,
         "spacing": view.spacing,
-        "orientation": view.orientation
     }
 
     console.log(parameters)
@@ -50,7 +41,7 @@ ImprintRing.prototype.update = function (){
         cache: false,
         contentType: 'application/json;charset=UTF-8',
         data: JSON.stringify(parameters),
-        url: view.app.master_IP + '/imprint',
+        url: view.app.master_IP + '/carve',
         success: (response)=> {
             let results = JSON.parse(response)
             let vertices = results.v
@@ -83,7 +74,7 @@ ImprintRing.prototype.update = function (){
 }
 
 
-ImprintRing.prototype.retrieve_log = function(){
+CarveRing.prototype.retrieve_log = function(){
     let view = this
     view.app.query_ping()
 }

@@ -10,8 +10,8 @@ let app = function(){
 
     let loader = new THREE.OBJLoader()
 
-    view.master_IP = "https://fireflower-api-test-y2hc3ntgeq-uk.a.run.app"
-    // view.master_IP = "http://localhost:5000"
+    // view.master_IP = "https://fireflower-api-test-y2hc3ntgeq-uk.a.run.app"
+    view.master_IP = "http://localhost:5000"
 
     loader.load("ring_300x100.obj",function(object){
 
@@ -28,7 +28,8 @@ let app = function(){
         view.visualizer.scene.add(view.mesh);
 
         // view.cymaticRing = new CymaticRing(view, .1, 90)
-        view.imprintRing = new ImprintRing(view, 1, 2)
+        // view.imprintRing = new ImprintRing(view, 1, 2)
+        view.carveRing = new CarveRing(view)
 
     });
 
