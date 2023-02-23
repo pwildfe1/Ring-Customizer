@@ -29,6 +29,7 @@ ImprintRing.prototype.createUI = function(){
 
 }
 
+
 ImprintRing.prototype.update = function (){
 
     let view = this
