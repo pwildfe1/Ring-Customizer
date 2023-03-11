@@ -1,4 +1,4 @@
-let visualizer = function( grid = true) {
+let visualizer = function( grid = true, divID = "") {
 
     let view = this
 
@@ -7,6 +7,17 @@ let visualizer = function( grid = true) {
 
     let light = new THREE.AmbientLight( 0x404040 ); // soft white light
     view.scene.add(light)
+
+    view.screen_width = window.innerWidth
+    view.screen_height = window.innerHeight
+
+    if(divID !== ""){
+        view.div = document.getElementById(divID)
+        view.screen_width = view.div.clientWidth
+        view.screen_height = view.div.clientHeight
+    } else {
+        view.div = document.body
+    }
 
     if(grid === true) {
         let size = 10;
@@ -24,7 +35,7 @@ let visualizer = function( grid = true) {
     }
 
     view.cameras = {
-        perspective: new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000),
+        perspective: new THREE.PerspectiveCamera(45, view.screen_width / view.screen_height, 0.1, 1000),
         left: new THREE.OrthographicCamera(1, 0, 0, 0, .1, 2000),
         right: new THREE.OrthographicCamera(0, 1, 0, 0, .1, 2000)
     }
@@ -34,10 +45,17 @@ let visualizer = function( grid = true) {
     view.renderer = new THREE.WebGLRenderer({ antialias: true });
     view.renderer.setClearColor( new THREE.Color("rgb(245, 245, 245)") );
     view.renderer.setPixelRatio( window.devicePixelRatio );
-    view.renderer.setSize(window.innerWidth,window.innerHeight);
+
+    if (divID === "") {
+        document.body.appendChild(view.renderer.domElement);
+
+    } else {
+        let div = document.getElementById(divID);
+        div.appendChild(view.renderer.domElement);
+    }
+    view.renderer.setSize(view.screen_width, view.screen_height);
     view.renderer.shadowMap.enabled = true;
 
-    document.body.appendChild( view.renderer.domElement );
 
     view.createUI()
 
@@ -69,8 +87,8 @@ visualizer.prototype.updateCamera = function(){
 
     let pointLight = new THREE.PointLight( 0xffffff, 0.8 );
     view.currCamera.add( pointLight );
-    view.currCamera.position.set( 0, 100, 0 );
-    let controls = new THREE.OrbitControls( view.currCamera );
+    view.currCamera.position.set( 0, 20, 40 );
+    let controls = new THREE.OrbitControls( view.currCamera, view.div );
     view.scene.add(view.currCamera)
 
 }
@@ -87,8 +105,8 @@ visualizer.prototype.animate = function(){
     };
 
     let mouseX = 0, mouseY = 0;
-    let windowHalfX = window.innerWidth / 2;
-    let windowHalfY = window.innerHeight / 2;
+    let windowHalfX = view.screen_width/ 2;
+    let windowHalfY = view.screen_height / 2;
 
     function onDocumentMouseMove( event ) {
         mouseX = ( event.clientX - windowHalfX ) / 2;

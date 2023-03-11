@@ -2,7 +2,7 @@ let app = function(){
 
     let view = this
 
-    view.visualizer = new visualizer(false)
+    view.visualizer = new visualizer(false, "render_window")
 
     view.UI = new dat.GUI()
 
@@ -13,17 +13,32 @@ let app = function(){
     // view.master_IP = "https://fireflower-api-test-y2hc3ntgeq-uk.a.run.app"
     view.master_IP = "http://localhost:5000"
 
+    let offsetX = window.innerWidth * .30
+    let offsetY = window.innerHeight * .10 + view.visualizer.div.clientHeight + 10
+
+    view.control_panel_x = offsetX
+    view.control_panel_y = offsetY
+
+    view.controls = d3.select("body").append("svg")
+        .attr("id", "control-panel")
+        .attr("height", window.innerHeight * .40)
+        .attr("width", view.visualizer.div.clientWidth)
+        .attr("transform","translate(" + offsetX + "," + offsetY + ")")
+
     loader.load("ring_300x100.obj",function(object){
 
         view.mesh = object.children[0];
-        let material = new THREE.MeshPhongMaterial();
-        material.doubleSided = true;
+        // let material = new THREE.MeshPhongMaterial();
+        view.material = new THREE.MeshStandardMaterial();
+        view.material.metalness = .5
+        view.material.color.set("#FFD700") //#ffffff
+        view.material.doubleSided = true;
 
         console.log(view.mesh)
 
         view.mesh.geometry = new THREE.Geometry().fromBufferGeometry(view.mesh.geometry);
         view.mesh.geometry.mergeVertices()
-        view.mesh.material = material;
+        view.mesh.material = view.material;
 
         view.visualizer.scene.add(view.mesh);
 
@@ -96,8 +111,8 @@ app.prototype.setValid = function(threshold = 0.8){
     let selected = []
     let minX = v[0].x
     let maxX = v[0].x
-    let minZ = v[0].z
-    let maxZ = v[0].z
+    let minY = v[0].y
+    let maxY = v[0].y
 
     view.valid = []
     view.colors = []
@@ -105,13 +120,13 @@ app.prototype.setValid = function(threshold = 0.8){
     for(let i = 0; i < v.length; i++){
         if(v[i].x > maxX) maxX = v[i].x
         if(v[i].x < minX) minX = v[i].x
-        if(v[i].z > maxZ) maxZ = v[i].z
-        if(v[i].z < minZ) minZ = v[i].z
+        if(v[i].y > maxY) maxY = v[i].y
+        if(v[i].y < minY) minY = v[i].y
         view.vn.push(new THREE.Vector3(0, 0, 0))
     }
 
     view.radius = maxX - 1
-    view.height = maxZ - minZ
+    view.height = maxY - minY
     view.mesh.geometry.computeVertexNormals()
 
     for(let i = 0; i < f.length; i++){
@@ -119,7 +134,7 @@ app.prototype.setValid = function(threshold = 0.8){
         let v2 = v[f[i].b]
         let v3 = v[f[i].c]
         let fn = f[i].normal
-        let orientation = new THREE.Vector3(v1.x, v1.y, fn.z) // assumming origin is 0, 0, 0
+        let orientation = new THREE.Vector3(v1.x, fn.y, v1.z) // assumming origin is 0, 0, 0
         orientation.normalize()
 
         if (selected.indexOf(f[i].a) === -1){
@@ -156,6 +171,10 @@ app.prototype.setValid = function(threshold = 0.8){
     }
 
 }
+
+// function gen_rgb(values){
+//     return 'rgb(' + values.join(',') + ')'
+// }
 
 
 new app()

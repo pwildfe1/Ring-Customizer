@@ -7,6 +7,8 @@ let CarveRing = function(parent, spread = 1, frequency = 3){
     view.spacing = 2
     view.depress = true
     view.hatch = true
+    view.theme_color = 'rgb(0, 0, 255)'
+    view.panel = []
 
     console.log(view.app.mesh.geometry)
 
@@ -20,6 +22,9 @@ let CarveRing = function(parent, spread = 1, frequency = 3){
     })
 
     view.app.mesh.geometry.faces.forEach(f => {view.faces.push(new THREE.Face3(f.a, f.b, f.c))})
+    view.svg = d3.select("#" + "control-panel")
+
+    view.origin = {x: view.app.control_panel_x, y: view.app.control_panel_y}
 
     view.createUI()
 
@@ -38,6 +43,19 @@ CarveRing.prototype.createUI = function(){
     view.UI.add(view, "depress").onChange(function (){ view.update() })
     view.UI.add(view, "hatch").onChange(function (){view.update()})
     view.UI.add(view, "retrieve_log")
+
+    // let x = window.innerWidth * .30 + 10
+    // let y = window.innerHeight * .10 + view.app.visualizer.div.clientHeight + 10
+    let x = 20
+    let y = 20
+    view.panel.push(new SliderControl(x, y, view.app.visualizer.div.clientWidth - 2*x, [.1, 1], view, "control-panel", "spread"))
+
+    y = 60
+    view.panel.push(new SliderControl(x, y, view.app.visualizer.div.clientWidth - 2*x, [1, 6], view, "control-panel", "frequency"))
+
+    y = 100
+    let extra = {freeze: false}
+    view.panel.push(new SliderControl(x, y, view.app.visualizer.div.clientWidth - 2*x, [1.5, 3], view, "control-panel", "spacing", extra))
 
 }
 
@@ -76,10 +94,10 @@ CarveRing.prototype.create_lines = function (){
         let pts = []
         let r = view.app.radius + 1
         let x = r * Math.cos(i/resoU * 2 * Math.PI)
-        let y = r * Math.sin(i/resoU * 2 * Math.PI)
+        let z = r * Math.sin(i/resoU * 2 * Math.PI)
         let line_length = view.app.height * .75 * Math.sin(i/resoU * 2 * Math.PI * view.frequency)
         for(let j = 0; j < att_reso; j++){
-            pts.push(new THREE.Vector3(x, y, j/(att_reso - 1) * line_length + (view.app.height/2 - line_length/2)))
+            pts.push(new THREE.Vector3(x, j/(att_reso - 1) * line_length + (view.app.height/2 - line_length/2), z))
         }
         view.attractors.push(pts)
     }
@@ -98,7 +116,7 @@ CarveRing.prototype.create_hatch = function (){
     let pinch_points = []
 
     for(let i = 0; i < view.frequency; i++){
-        pinch_points.push(new THREE.Vector3(view.app.radius * Math.cos(i/view.frequency * 2 * Math.PI), view.app.radius * Math.sin(i/view.frequency * 2 * Math.PI), view.app.height/2))
+        pinch_points.push(new THREE.Vector3(view.app.radius * Math.cos(i/view.frequency * 2 * Math.PI), view.app.height/2, view.app.radius * Math.sin(i/view.frequency * 2 * Math.PI)))
     }
 
     console.log(pinch_points)
@@ -110,7 +128,7 @@ CarveRing.prototype.create_hatch = function (){
         for(let j = 0; j < att_reso; j++){
 
             let r = view.app.radius + 2
-            let pt01 = new THREE.Vector3(r * Math.cos(j/att_reso * view.app.height/r + phase), r * Math.sin(j/att_reso * view.app.height/r + phase), view.app.height - view.app.height*(j/att_reso))
+            let pt01 = new THREE.Vector3(r * Math.cos(j/att_reso * view.app.height/r + phase), view.app.height - view.app.height*(j/att_reso), r * Math.sin(j/att_reso * view.app.height/r + phase))
             let minimum_dist = view.app.radius
             for(let k = 0; k < pinch_points.length; k++){
                 let dist = pt01.distanceTo(pinch_points[k])
@@ -120,12 +138,12 @@ CarveRing.prototype.create_hatch = function (){
             if(minimum_dist/pinch_threshold < 1){
                 factor = 1 - minimum_dist/pinch_threshold
             }
-            let radial_vector01 = new THREE.Vector3(pt01.x, pt01.y, 0)
+            let radial_vector01 = new THREE.Vector3(pt01.x, 0, pt01.z)
             radial_vector01.normalize()
             radial_vector01 = radial_vector01.multiplyScalar(-factor)
             pts01.push(pt01.add(radial_vector01))
 
-            let pt02 = new THREE.Vector3(r * Math.cos(j/att_reso * view.app.height/r + phase), r * Math.sin(j/att_reso * view.app.height/r + phase), view.app.height*(j/att_reso))
+            let pt02 = new THREE.Vector3(r * Math.cos(j/att_reso * view.app.height/r + phase), view.app.height*(j/att_reso), r * Math.sin(j/att_reso * view.app.height/r + phase))
             minimum_dist = view.app.radius
             for(let k = 0; k < pinch_points.length; k++){
                 let dist = pt01.distanceTo(pinch_points[k])
@@ -135,7 +153,7 @@ CarveRing.prototype.create_hatch = function (){
             if (minimum_dist/pinch_threshold < 1){
                 factor = 1 - minimum_dist/pinch_threshold
             }
-            let radial_vector02 = new THREE.Vector3(pt02.x, pt02.y, 0)
+            let radial_vector02 = new THREE.Vector3(pt02.x, 0, pt02.z)
             radial_vector02.normalize()
             radial_vector02 = radial_vector02.multiplyScalar(-factor)
             pts02.push(pt02.add(radial_vector02))
@@ -177,10 +195,10 @@ CarveRing.prototype.imprint = function (threshold = .5, depth = .5){
     view.vertices.forEach(v => geometry.vertices.push(new THREE.Vector3(v.x, v.y, v.z)))
     geometry.faces = view.faces
     view.app.visualizer.scene.remove(view.app.mesh)
-    let material = new THREE.MeshPhongMaterial();
-    material.doubleSided = true;
+    // let material = new THREE.MeshPhongMaterial();
+    // material.doubleSided = true;
     geometry.computeVertexNormals()
-    view.app.mesh = new THREE.Mesh(geometry, material)
+    view.app.mesh = new THREE.Mesh(geometry, view.app.material)
     view.app.visualizer.scene.add(view.app.mesh)
 
 }
@@ -218,10 +236,10 @@ CarveRing.prototype.update_fireflower = function (){
             geometry.vertices = v
             geometry.faces = f
             view.app.visualizer.scene.remove(view.app.mesh)
-            let material = new THREE.MeshPhongMaterial();
-            material.doubleSided = true;
+            // let material = new THREE.MeshPhongMaterial();
+            // material.doubleSided = true;
             geometry.computeVertexNormals()
-            view.app.mesh = new THREE.Mesh(geometry, material)
+            view.app.mesh = new THREE.Mesh(geometry, view.app.material)
             view.app.visualizer.scene.add(view.app.mesh)
 
             view.app.add_ping()
