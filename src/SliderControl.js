@@ -14,9 +14,9 @@ let SliderControl = function (x, y, width, domain, parent, divId, name, extra = 
     view.reading = view.minimum
 
     view.freeze = false
-    if (view.extra.freeze){
-        view.freeze = view.extra.freeze
-    }
+    if (view.extra.freeze) view.freeze = view.extra.freeze
+    view.position = view.x
+    if (view.extra.initial) view.position = view.x + view.extra.initial * view.width
 
     view.parent.svg.append("g")
         .attr("id", view.name)
@@ -65,7 +65,7 @@ SliderControl.prototype.setup = function(){
     // Setup upper and lower boundaries and sliders
     let slider_width = 20
     let slider_thickness = 10
-    let upper_limit = [{x: view.x, y: view.y - slider_width/2}, {x: view.x, y: view.y + slider_width/2}]
+    let upper_limit = [{x: view.position, y: view.y - slider_width/2}, {x: view.position, y: view.y + slider_width/2}]
 
 
     // Set up top slider

@@ -36,26 +36,56 @@ CarveRing.prototype.createUI = function(){
 
     console.log("CARVE CREATED!!!")
 
-    view.UI = view.app.UI.addFolder("Carve Ring")
-    view.UI.add(view, "spread", 0, 1).onChange(function(){ view.update() })
-    view.UI.add(view, "frequency", 1, 6).onChange(function(){ view.update() })
-    view.UI.add(view, "spacing", 1.5, 3).onChange(function (){ view.update() })
-    view.UI.add(view, "depress").onChange(function (){ view.update() })
-    view.UI.add(view, "hatch").onChange(function (){view.update()})
-    view.UI.add(view, "retrieve_log")
+    // view.UI = view.app.UI.addFolder("Carve Ring")
+    // view.UI.add(view, "spread", 0, 1).onChange(function(){ view.update() })
+    // view.UI.add(view, "frequency", 1, 6).onChange(function(){ view.update() })
+    // view.UI.add(view, "spacing", 1.5, 3).onChange(function (){ view.update() })
+    // view.UI.add(view, "depress").onChange(function (){ view.update() })
+    // view.UI.add(view, "hatch").onChange(function (){view.update()})
+    // view.UI.add(view, "retrieve_log")
 
     // let x = window.innerWidth * .30 + 10
     // let y = window.innerHeight * .10 + view.app.visualizer.div.clientHeight + 10
     let x = 20
+
     let y = 20
-    view.panel.push(new SliderControl(x, y, view.app.visualizer.div.clientWidth - 2*x, [.1, 1], view, "control-panel", "spread"))
+    let spread_extra = {initial: 1}
+    view.panel.push(new SliderControl(x, y, view.app.visualizer.div.clientWidth - 2*x, [.5, 1], view, "control-panel", "spread", spread_extra))
 
     y = 60
     view.panel.push(new SliderControl(x, y, view.app.visualizer.div.clientWidth - 2*x, [1, 6], view, "control-panel", "frequency"))
 
     y = 100
-    let extra = {freeze: false}
-    view.panel.push(new SliderControl(x, y, view.app.visualizer.div.clientWidth - 2*x, [1.5, 3], view, "control-panel", "spacing", extra))
+    let spacing_extra = {freeze: false}
+    view.panel.push(new SliderControl(x, y, view.app.visualizer.div.clientWidth - 2*x, [2, 3], view, "control-panel", "spacing", spacing_extra))
+
+    y = 180
+    let depress_extra = {options: ["In", "Out"]}
+    view.panel.push(new ButtonControl(x, y, 100, 40, "depress", view, depress_extra))
+
+    x = 150
+    let hatch_extra = {options: ["Hatch", "Wave"]}
+    view.panel.push(new ButtonControl(x, y, 100, 40, "hatch", view, hatch_extra))
+
+    // view.depressButton = document.createElement("button")
+    // document.body.appendChild(view.depressButton)
+    // view.depressButton.style.position = "absolute"
+    // view.depressButton.style.top = (view.origin.x).toString() + "px"
+    // view.depressButton.style.left = (view.origin.y).toString() + "px"
+    // view.depressButton.style.width = "120px"
+    // view.depressButton.style.padding = "10px"
+    // view.depressButton.style.height = "40px"
+    // view.depressButton.style.fontSize = "10px"
+    // view.depressButton.style.backgroundColor = 'rgb(200, 0, 0)'
+    // view.depressButton.innerHTML = "Engrave"
+    // view.depressButton.onclick = function() {
+    //     if (view.depress === true) {
+    //         view.depress = false
+    //     } else {
+    //         view.depress = true
+    //     }
+    //     view.update()
+    // }
 
 }
 

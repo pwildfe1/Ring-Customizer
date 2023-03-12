@@ -4,7 +4,7 @@ let app = function(){
 
     view.visualizer = new visualizer(false, "render_window")
 
-    view.UI = new dat.GUI()
+    // view.UI = new dat.GUI()
 
     view.user_name = "fireflower"
 

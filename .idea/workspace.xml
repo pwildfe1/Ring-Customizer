@@ -64,7 +64,7 @@
       <workItem from="1677125465790" duration="980000" />
       <workItem from="1677721266417" duration="593000" />
       <workItem from="1677878231900" duration="10839000" />
-      <workItem from="1678558363148" duration="11472000" />
+      <workItem from="1678558363148" duration="20598000" />
     </task>
     <servers />
   </component>
@@ -72,10 +72,10 @@
     <option name="version" value="3" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="623" y="223" width="672" height="678" key="search.everywhere.popup" timestamp="1677885092624">
+    <state x="623" y="223" width="672" height="678" key="search.everywhere.popup" timestamp="1678575453209">
       <screen x="0" y="0" width="1920" height="1032" />
     </state>
-    <state x="623" y="223" width="672" height="678" key="search.everywhere.popup/0.0.1920.1032@0.0.1920.1032" timestamp="1677885092624" />
+    <state x="623" y="223" width="672" height="678" key="search.everywhere.popup/0.0.1920.1032@0.0.1920.1032" timestamp="1678575453209" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

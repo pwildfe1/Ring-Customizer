@@ -3,7 +3,7 @@ let visualizer = function( grid = true, divID = "") {
     let view = this
 
     view.scene = new THREE.Scene()
-    view.UI = new dat.GUI();
+    // view.UI = new dat.GUI();
 
     let light = new THREE.AmbientLight( 0x404040 ); // soft white light
     view.scene.add(light)
@@ -66,9 +66,9 @@ visualizer.prototype.createUI = function(){
 
     let view = this
 
-    view.UI.add(view, 'display', ['perspective', 'left', 'right']).listen().onChange(function(){
-        view.updateCamera()
-    })
+    // view.UI.add(view, 'display', ['perspective', 'left', 'right']).listen().onChange(function(){
+    //     view.updateCamera()
+    // })
 
     view.animate()
 
