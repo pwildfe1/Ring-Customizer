@@ -4,7 +4,7 @@ let app = function(){
 
     view.visualizer = new visualizer(false, "render_window")
 
-    // view.UI = new dat.GUI()
+    view.UI = new dat.GUI()
 
     view.user_name = "fireflower"
 
@@ -19,13 +19,14 @@ let app = function(){
     view.control_panel_x = offsetX
     view.control_panel_y = offsetY
 
-    view.controls = d3.select("body").append("svg")
-        .attr("id", "control-panel")
-        .attr("height", window.innerHeight * .40)
-        .attr("width", view.visualizer.div.clientWidth)
-        .attr("transform","translate(" + offsetX + "," + offsetY + ")")
+    // view.controls = d3.select("body").append("svg")
+    //     .attr("id", "control-panel")
+    //     .attr("height", window.innerHeight * .40)
+    //     .attr("width", view.visualizer.div.clientWidth)
+    //     .attr("transform","translate(" + offsetX + "," + offsetY + ")")
 
-    loader.load("ring_300x100.obj",function(object){
+    // loader.load("ring_7_dent.obj",function(object){
+    loader.load("ring_7_dent.obj",function(object){
 
         view.mesh = object.children[0];
         // let material = new THREE.MeshPhongMaterial();
@@ -126,8 +127,10 @@ app.prototype.setValid = function(threshold = 0.8){
     }
 
     view.radius = maxX - 1
-    view.height = maxY - minY
+    // view.height = maxY - minY
+    view.height = maxY
     view.mesh.geometry.computeVertexNormals()
+
 
     for(let i = 0; i < f.length; i++){
         let v1 = v[f[i].a]

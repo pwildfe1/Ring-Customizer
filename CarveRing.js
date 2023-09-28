@@ -4,13 +4,22 @@ let CarveRing = function(parent, spread = 1, frequency = 3){
     view.app = parent
     view.spread = spread
     view.frequency = frequency
+    view.phase = 0
     view.spacing = 2
+    view.special_interval = 0
+    view.special_offset = 0
     view.depress = true
     view.hatch = true
+    view.top_line = false
+    view.bot_line = false
     view.theme_color = 'rgb(0, 0, 255)'
     view.panel = []
 
-    console.log(view.app.mesh.geometry)
+    view.angleX = 0
+    view.angleY = 0
+    view.angleZ = 0
+
+    view.original_angles = [view.angleX, view.angleY, view.angleZ]
 
     view.original_v = []
     view.vertices = []
@@ -36,13 +45,25 @@ CarveRing.prototype.createUI = function(){
 
     console.log("CARVE CREATED!!!")
 
-    // view.UI = view.app.UI.addFolder("Carve Ring")
-    // view.UI.add(view, "spread", 0, 1).onChange(function(){ view.update() })
-    // view.UI.add(view, "frequency", 1, 6).onChange(function(){ view.update() })
-    // view.UI.add(view, "spacing", 1.5, 3).onChange(function (){ view.update() })
-    // view.UI.add(view, "depress").onChange(function (){ view.update() })
-    // view.UI.add(view, "hatch").onChange(function (){view.update()})
-    // view.UI.add(view, "retrieve_log")
+    view.UI = view.app.UI.addFolder("Carve Ring")
+    view.UI.add(view, "spread", 0, 1).onChange(function(){ view.update() })
+    view.UI.add(view, "frequency", 1, 6).onChange(function(){ view.update() })
+    view.UI.add(view, "phase", 0, .5).onChange(function(){view.update()})
+    view.UI.add(view, "spacing", 1.5, 3).onChange(function (){ view.update() })
+    view.UI.add(view, "depress").onChange(function (){ view.update() })
+    view.UI.add(view, "hatch").onChange(function (){view.update()})
+    view.UI.add(view, "top_line").onChange(function(){view.update()}).listen()
+    view.UI.add(view, "bot_line").onChange(function(){view.update()}).listen()
+
+    view.UI.add(view, "angleX").onChange(function(){view.update()})
+    view.UI.add(view, "angleY").onChange(function(){view.update()})
+    view.UI.add(view, "angleZ").onChange(function(){view.update()})
+
+    view.UI.add(view, "retrieve_log")
+
+    view.qx = new THREE.Quaternion()
+    view.qy = new THREE.Quaternion()
+    view.qz = new THREE.Quaternion()
 
     // let x = window.innerWidth * .30 + 10
     // let y = window.innerHeight * .10 + view.app.visualizer.div.clientHeight + 10
@@ -67,25 +88,24 @@ CarveRing.prototype.createUI = function(){
     let hatch_extra = {options: ["Hatch", "Wave"]}
     view.panel.push(new ButtonControl(x, y, 100, 40, "hatch", view, hatch_extra))
 
-    // view.depressButton = document.createElement("button")
-    // document.body.appendChild(view.depressButton)
-    // view.depressButton.style.position = "absolute"
-    // view.depressButton.style.top = (view.origin.x).toString() + "px"
-    // view.depressButton.style.left = (view.origin.y).toString() + "px"
-    // view.depressButton.style.width = "120px"
-    // view.depressButton.style.padding = "10px"
-    // view.depressButton.style.height = "40px"
-    // view.depressButton.style.fontSize = "10px"
-    // view.depressButton.style.backgroundColor = 'rgb(200, 0, 0)'
-    // view.depressButton.innerHTML = "Engrave"
-    // view.depressButton.onclick = function() {
-    //     if (view.depress === true) {
-    //         view.depress = false
-    //     } else {
-    //         view.depress = true
-    //     }
-    //     view.update()
-    // }
+    x = 300
+    // let download = {options: ["Download"]}
+    // view.panel.push(new ButtonControl(x, y, 100, 40, "download", view))
+
+    view.downloadButton = document.createElement("button")
+    document.body.appendChild(view.downloadButton)
+    view.downloadButton.style.position = "absolute"
+    // view.downloadButton.style.top = (x).toString() + "px"
+    // view.downloadButton.style.left = (y).toString() + "px"
+    view.downloadButton.style.width = "120px"
+    view.downloadButton.style.padding = "10px"
+    view.downloadButton.style.height = "40px"
+    view.downloadButton.style.fontSize = "10px"
+    view.downloadButton.style.backgroundColor = 'rgb(200, 0, 0)'
+    view.downloadButton.innerHTML = "Download"
+    view.downloadButton.onclick = function() {
+        view.download_print()
+    }
 
 }
 
@@ -103,14 +123,45 @@ CarveRing.prototype.update = function (){
     view.reset()
     view.attractors = []
 
+    view.qx.setFromAxisAngle(new THREE.Vector3(1, 0, 0), view.angleX)
+    view.qy.setFromAxisAngle(new THREE.Vector3(0, 1, 0), view.angleY)
+    view.qz.setFromAxisAngle(new THREE.Vector3(0, 0, 1), view.angleZ)
+
+    if(view.angleX !== view.original_angles[0] || view.angleY !== view.original_angles[1] || view.angleZ !== view.original_angles[2]){
+        view.original_angles = [view.angleX, view.angleY, view.angleZ]
+        view.transform_body()
+    }
+
+    if (view.bot_line === true) view.top_line = false
+    if (view.top_line === true) view.bot_line = false
+
     if (view.hatch === true){
         view.create_hatch()
     } else {
         view.create_lines()
     }
 
-    view.imprint(view.spread*.5)
+    view.imprint(view.spread*.75, 1)
+    console.log(view.spread)
 }
+
+
+
+CarveRing.prototype.transform_body = function(){
+
+    let view = this
+
+    let euler = new THREE.Euler(view.qx, 'XYZ')
+    view.app.mesh.geometry.rotateX(euler.x)
+
+    euler = new THREE.Euler(view.qy, 'XYZ')
+    view.app.mesh.geometry.rotateY(euler.y)
+
+    euler = new THREE.Euler(view.qz, 'XYZ')
+    view.app.mesh.geometry.rotateY(euler.z)
+
+}
+
 
 
 CarveRing.prototype.create_lines = function (){
@@ -125,9 +176,21 @@ CarveRing.prototype.create_lines = function (){
         let r = view.app.radius + 1
         let x = r * Math.cos(i/resoU * 2 * Math.PI)
         let z = r * Math.sin(i/resoU * 2 * Math.PI)
-        let line_length = view.app.height * .75 * Math.sin(i/resoU * 2 * Math.PI * view.frequency)
+        let line_length = view.app.height * .75 * Math.sin(i/resoU * 2 * Math.PI * view.frequency + view.phase * Math.PI)
+        let offset = 0
+        if(i > resoU - view.special_interval){
+            offset = view.special_offset
+        } else if (i < view.special_interval){
+            offset = -view.special_offset
+        }
         for(let j = 0; j < att_reso; j++){
-            pts.push(new THREE.Vector3(x, j/(att_reso - 1) * line_length + (view.app.height/2 - line_length/2), z))
+            if (view.bot_line === true){
+                pts.push(new THREE.Vector3(x, j/(att_reso - 1)  * Math.abs(line_length - offset) - Math.abs(offset), z))
+            } else if(view.top_line === true){
+                pts.push(new THREE.Vector3(x, view.app.height - j / (att_reso - 1) * Math.abs(line_length - offset) + Math.abs(offset), z))
+            } else {
+                pts.push(new THREE.Vector3(x, j / (att_reso - 1) * line_length + (view.app.height / 2 - line_length / 2), z))
+            }
         }
         view.attractors.push(pts)
     }
@@ -148,8 +211,6 @@ CarveRing.prototype.create_hatch = function (){
     for(let i = 0; i < view.frequency; i++){
         pinch_points.push(new THREE.Vector3(view.app.radius * Math.cos(i/view.frequency * 2 * Math.PI), view.app.height/2, view.app.radius * Math.sin(i/view.frequency * 2 * Math.PI)))
     }
-
-    console.log(pinch_points)
 
     for(let i = 0; i < resoU; i++){
         let pts01 = []
@@ -196,7 +257,7 @@ CarveRing.prototype.create_hatch = function (){
 }
 
 
-CarveRing.prototype.imprint = function (threshold = .5, depth = .5){
+CarveRing.prototype.imprint = function (threshold = .5, depth = .75){
 
     let view = this
 
@@ -230,6 +291,49 @@ CarveRing.prototype.imprint = function (threshold = .5, depth = .5){
     geometry.computeVertexNormals()
     view.app.mesh = new THREE.Mesh(geometry, view.app.material)
     view.app.visualizer.scene.add(view.app.mesh)
+
+}
+
+
+
+CarveRing.prototype.download_print = function(){
+
+    let view = this
+    let key = "ring"
+
+    let geo = view.app.mesh.geometry
+    let spacing = Math.floor(view.spacing * 100) / 100
+    let frequency = Math.floor(view.frequency * 100) / 100
+    let prefix = frequency.toString() + "_" + spacing.toString()
+
+    let DownloadObject = function (geo, prefix) {
+        let v = ""
+        let f = ""
+
+        for(let i=0; i<geo.vertices.length; i++){
+            let vert = geo.vertices[i]
+            v += "v " + vert.x.toString() + " " + vert.y.toString() + " " + vert.z.toString() + "\n"
+        }
+        for(let i=0; i<geo.faces.length; i++){
+            let face = [geo.faces[i].a + 1, geo.faces[i].b + 1, geo.faces[i].c + 1]
+            f += "f " + face[0].toString() + " " + face[1].toString() + " " + face[2].toString() + "\n"
+        }
+
+        let obj = v + f
+
+        let element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(obj));
+        element.setAttribute('download', prefix + "_ring.obj");
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
+    DownloadObject(geo, prefix)
 
 }
 
