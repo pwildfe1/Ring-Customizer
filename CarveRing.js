@@ -1,17 +1,17 @@
-let CarveRing = function(parent, spread = 1, frequency = 3){
+let CarveRing = function(parent, spread = 1, frequency = 2){
 
     let view = this
     view.app = parent
     view.spread = spread
     view.frequency = frequency
     view.phase = 0
-    view.spacing = 2
+    view.spacing = 1.5
     view.special_interval = 0
     view.special_offset = 0
     view.depress = true
-    view.hatch = true
+    view.hatch = false
     view.top_line = false
-    view.bot_line = false
+    view.bot_line = true
     view.theme_color = 'rgb(0, 0, 255)'
     view.panel = []
 
@@ -106,6 +106,8 @@ CarveRing.prototype.createUI = function(){
     view.downloadButton.onclick = function() {
         view.download_print()
     }
+
+    view.update()
 
 }
 
